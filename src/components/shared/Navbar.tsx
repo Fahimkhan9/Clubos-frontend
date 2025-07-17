@@ -36,8 +36,7 @@ export default function Navbar() {
       </Link>
 
       <div className="flex gap-4 items-center">
-        <Link href="/clubs">Clubs</Link>
-        <Link href="/events">Events</Link>
+        <Link href="/dashboard">Dashboard</Link>
 
         {isLoading ? <LoadingDots/> : isAuthenticated ? (
           <>
