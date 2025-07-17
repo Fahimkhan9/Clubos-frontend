@@ -1,60 +1,62 @@
-'use client';
+// components/Navbar.tsx
+"use client";
 
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
-import { useState } from 'react';
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { toast } from "react-hot-toast";
+import { api } from "@/lib/axios";
+
+function LoadingDots() {
+  return (
+    <span className="inline-block w-16 text-center text-primary font-semibold">
+      Loading
+      <span className="animate-pulse">...</span>
+    </span>
+  );
+}
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { user, isAuthenticated, mutate, isLoading } = useCurrentUser();
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/user/logout"); // your backend logout route
+      mutate(null); // reset user
+      toast.success("Logged out");
+    } catch (err) {
+      toast.error("Logout failed");
+    }
+  };
 
   return (
-    <header className="w-full bg-white shadow-sm sticky top-0 z-50">
-      <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 md:py-4">
-        {/* Left: Brand name */}
-        <Link href="/" className="text-2xl font-bold text-primary">
-          Club<span className="text-pink-500">OS</span>
-        </Link>
+    <nav className="flex justify-between items-center py-4 px-6 border-b">
+      <Link href="/" className="text-xl font-semibold text-primary">
+        ClubOS
+      </Link>
 
-        {/* Right: Links and Button */}
-        <div className="hidden md:flex items-center gap-6">
-          <Link href="/clubs" className="text-gray-700 hover:text-primary font-medium">
-            Clubs
-          </Link>
-          <Link href="/events" className="text-gray-700 hover:text-primary font-medium">
-            Events
-          </Link>
-          <Link href="/dashboard" className="text-gray-700 hover:text-primary font-medium">
-            Dashboard
-          </Link>
-          <Button className="bg-primary text-white hover:bg-purple-700">
-            Sign In
-          </Button>
-        </div>
+      <div className="flex gap-4 items-center">
+        <Link href="/clubs">Clubs</Link>
+        <Link href="/events">Events</Link>
 
-        {/* Mobile Menu Button */}
-        <button onClick={() => setIsOpen(!isOpen)} className="md:hidden">
-          <Menu className="w-6 h-6 text-gray-700" />
-        </button>
-      </nav>
-
-      {/* Mobile Menu Dropdown */}
-      {isOpen && (
-        <div className="md:hidden px-4 pb-4 space-y-2">
-          <Link href="/clubs" className="block text-gray-700 hover:text-primary font-medium">
-            Clubs
-          </Link>
-          <Link href="/events" className="block text-gray-700 hover:text-primary font-medium">
-            Events
-          </Link>
-          <Link href="/dashboard" className="block text-gray-700 hover:text-primary font-medium">
-            Dashboard
-          </Link>
-          <Button className="w-full bg-primary text-white hover:bg-purple-700">
-            Sign In
-          </Button>
-        </div>
-      )}
-    </header>
+        {isLoading ? <LoadingDots/> : isAuthenticated ? (
+          <>
+            <span className="text-sm">Hi, {user.name}</span>
+            <Button onClick={handleLogout} variant="outline">
+              Logout
+            </Button>
+          </>
+        ) : (
+          <>
+            <Link href="/login">
+              <Button variant="ghost">Login</Button>
+            </Link>
+            <Link href="/register">
+              <Button>Sign up</Button>
+            </Link>
+          </>
+        )}
+      </div>
+    </nav>
   );
 }

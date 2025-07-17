@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/lib/axios";
 import toast from "react-hot-toast";
 import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
+import { useRouter } from "next/navigation";
 
 type FormData = {
   email: string;
@@ -30,7 +31,7 @@ export default function LoginForm() {
   } = useForm<FormData>();
 
   const [serverError, setServerError] = useState("");
-
+  const router=useRouter()
   const { trigger, isMutating } = useSWRMutation("/user/login", fetcher, {
     onError: (err: any) => {
       setServerError(err.response?.data?.message || "Login failed");
@@ -41,7 +42,7 @@ export default function LoginForm() {
     setServerError("");
     await trigger(data);
     toast.success("Login successful!");
-   
+    router.push("/"); // Redirect to home after successful login
   };
 
   return (
