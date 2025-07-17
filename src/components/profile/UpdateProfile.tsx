@@ -17,6 +17,8 @@ const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   bio: z.string().optional(),
   avatar: z.any().optional(),
+  batch: z.string().optional(),
+  department: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -36,16 +38,20 @@ export default function UpdateProfile() {
     defaultValues: {
       name: user?.name || "",
       bio: user?.bio || "",
+      batch: user?.batch || "",
+      department: user?.department || "",
     },
   });
 
   const { mutate } = useSWR("/user/profile");
-console.log(user);
+  console.log(user);
 
   useEffect(() => {
     if (user) {
       setValue("name", user.name || "");
       setValue("bio", user.bio || "");
+      setValue("batch", user.batch || "");
+      setValue("department", user.department || "");
       setAvatarPreview(user.avatar || null);
     }
   }, [user, setValue]);
@@ -55,17 +61,20 @@ console.log(user);
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("bio", data.bio || "");
+      formData.append("batch", data.batch || "");
+      formData.append("department", data.department || "");
       if (avatarFile) {
         formData.append("avatar", avatarFile);
       }
 
-      await api.patch("/user/profile", formData);
+      const res = await api.patch("/user/profile", formData);
+      console.log(res)
       mutate();
       toast.success("Profile updated successfully!");
-      
+
     } catch (error: any) {
-        toast.error(error?.response?.data?.message || "Update failed");
-      
+      toast.error(error?.response?.data?.message || "Update failed");
+
     }
   };
 
@@ -97,7 +106,7 @@ console.log(user);
               No Img
             </div>
           )}
-          <Input type="file" accept="image/*" onChange={handleImageChange} />
+          <Input type="file" name="avatar" accept="image/*" onChange={handleImageChange} />
         </div>
 
         {/* Email (Read Only) */}
@@ -125,7 +134,19 @@ console.log(user);
           <Textarea id="bio" rows={3} {...register("bio")} />
           {errors.bio && <p className="text-sm text-red-500 mt-1">{errors.bio.message}</p>}
         </div>
-
+        {/* Batch */}
+        <div>
+          <Label htmlFor="batch">Batch</Label>
+          <Input id="batch" {...register("batch")} />
+          {errors.batch && <p className="text-sm text-red-500 mt-1">{errors.batch.message}</p>}
+        </div>
+        {/* Department */}
+        <div>
+          <Label htmlFor="department">Department</Label>
+          <Input id="department" {...register("department")} />
+          {errors.department && <p className="text-sm text-red-500 mt-1">{errors.department.message}</p>
+          }
+        </div>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Saving..." : "Save Changes"}
         </Button>
