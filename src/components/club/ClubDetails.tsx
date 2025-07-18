@@ -21,6 +21,7 @@ export default function ClubDetails() {
   const memberInfo = club.data.members.find((m: { user: any; }) => m.user === user?._id);
   const isAdminOrMod = memberInfo.role === 'admin' || memberInfo.role === 'moderator';
 console.log(club);
+const isAdmin= memberInfo.role === 'admin';
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
@@ -45,7 +46,7 @@ console.log(club);
 
       {/*  Member Management */}
       {
-        isAdminOrMod && <ManageMembers clubId={id as string} currentUserRole={memberInfo.role} />
+        isAdmin && <ManageMembers clubId={id as string} currentUserRole={memberInfo.role} />
       }
     </div>
   );
