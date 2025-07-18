@@ -1,4 +1,7 @@
-// app/dashboard/events/page.tsx
+import ClubList from "@/components/club/ClubList";
+
 export default function ClubsPage() {
-  return <h2 className="text-xl font-semibold">Your Club</h2>;
+  return <div>
+    <ClubList/>
+  </div>;
 }

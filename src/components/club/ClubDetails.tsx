@@ -1,0 +1,52 @@
+"use client";
+
+import { useParams } from "next/navigation";
+import useSWR from "swr";
+import { api } from "@/lib/axios";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import InviteMember from "./InviteMember";
+import ManageMembers from "./ManageMembers";
+
+const fetcher = (url: string) => api.get(url).then(res => res.data);
+
+export default function ClubDetails() {
+  const { id } = useParams(); // get club ID from route
+  const { user } = useCurrentUser();
+
+  const { data: club, isLoading } = useSWR(`/club/${id}`, fetcher);
+
+  if (isLoading) return <p className="p-6">Loading...</p>;
+  if (!club) return <p className="p-6 text-red-500">Club not found.</p>;
+  const memberInfo = club.data.members.find((m: { user: any; }) => m.user === user?._id);
+  const isAdminOrMod = memberInfo.role === 'admin' || memberInfo.role === 'moderator';
+console.log(club);
+
+  return (
+    <div className="max-w-5xl mx-auto p-6 space-y-6">
+      {/* 1. Club Info Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-2xl">{club.data.name}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <p><strong>About:</strong> {club.data.about}</p>
+          <p><strong>University:</strong> {club.data.university}</p>
+          <p><strong>Session:</strong> {club.data.sessionYear}</p>
+          <p><strong>Total Members:</strong> {club.data.memberCount}</p>
+          <p><strong>Your Role:</strong> {memberInfo.role}</p>
+          <p><strong>Your Designation:</strong> {memberInfo.designation}</p>
+
+        </CardContent>
+      </Card>
+
+      {/*  Invite Members */}
+      {isAdminOrMod && <InviteMember clubId={id as string} />}
+
+      {/*  Member Management */}
+      {
+        isAdminOrMod && <ManageMembers clubId={id as string} currentUserRole={memberInfo.role} />
+      }
+    </div>
+  );
+}
