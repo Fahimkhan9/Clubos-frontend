@@ -67,7 +67,9 @@ export default function UpdateProfile() {
         formData.append("avatar", avatarFile);
       }
 
-      const res = await api.patch("/user/profile", formData);
+      const res = await api.patch("/user/profile", formData,{
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       console.log(res)
       mutate();
       toast.success("Profile updated successfully!");
