@@ -28,7 +28,7 @@ type Club = {
 const fetcher = (url: string) => api.get(url).then(res => res.data.data);
 
 export default function ClubList() {
-  const { data, error, isLoading } = useSWR<Club[]>('/club/my', fetcher);
+  const { data, error, isLoading } = useSWR<Club[]>('/club/mys', fetcher);
 const {user} = useCurrentUser();
   if (isLoading) {
     return (
@@ -44,7 +44,7 @@ const {user} = useCurrentUser();
 
   if (!data || data.length === 0) return <div>No clubs found.</div>;
 
-
+console.log(data)
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {

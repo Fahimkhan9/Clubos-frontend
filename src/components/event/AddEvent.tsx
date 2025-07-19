@@ -50,7 +50,7 @@ export default function AddEvent({ clubId }: { clubId: string }) {
       });
 
       toast.success("Event created");
-      mutate(`/club/${clubId}/events`);
+      mutate(`/club/${clubId}/event`);
       setOpen(false);
     } catch (err: any) {
       toast.error("Failed to create event");

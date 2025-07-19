@@ -1,9 +1,14 @@
 "use client";
 
-import { Card, CardContent,CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { DownloadIcon } from "lucide-react";
 
 export default function EventCard({ event }: { event: any }) {
+  const router = useRouter();
+
   return (
     <Card className="mb-4">
       <CardHeader>
@@ -13,7 +18,7 @@ export default function EventCard({ event }: { event: any }) {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-4">
         <p className="text-gray-700">{event.description}</p>
 
         {event.attachments?.length > 0 && (
@@ -42,6 +47,12 @@ export default function EventCard({ event }: { event: any }) {
             </div>
           </div>
         )}
+
+        <div className="pt-2">
+          <Button onClick={() => router.push(`/dashboard/events/${event._id}`)} variant="outline" className="w-full">
+            View Event Details
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
