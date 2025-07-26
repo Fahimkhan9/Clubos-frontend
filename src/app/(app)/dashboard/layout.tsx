@@ -45,6 +45,16 @@ const pathname = usePathname();
       ? "bg-white text-purple-700 font-semibold"
       : "bg-purple-600 hover:bg-purple-500 text-white"
   }`}>🙍‍♂️ Profile</Link>
+   <Link href="/dashboard/budget"  className={`px-4 py-2 rounded-lg transition ${
+    pathname === "/dashboard/budget"
+      ? "bg-white text-purple-700 font-semibold"
+      : "bg-purple-600 hover:bg-purple-500 text-white"
+  }`}>Budget</Link>
+   <Link href="/dashboard/task"  className={`px-4 py-2 rounded-lg transition ${
+    pathname === "/dashboard/task"
+      ? "bg-white text-purple-700 font-semibold"
+      : "bg-purple-600 hover:bg-purple-500 text-white"
+  }`}>Task</Link>
         </nav>
       </aside>
 

@@ -68,8 +68,8 @@ console.log(data)
           <CardContent>
             <p className="text-sm mb-2">{club.about}</p>
              <p className="text-xs text-gray-500">
-                Role: {memberInfo?.role || 'N/A'}<br />
-                Designation: {memberInfo?.designation || 'N/A'}
+                Role: {club.role || 'N/A'}<br />
+                Designation: {club.designation || 'N/A'}
               </p>
               <Link href={`/dashboard/clubs/${club._id}`}>
       <Button className="w-full">Visit</Button>

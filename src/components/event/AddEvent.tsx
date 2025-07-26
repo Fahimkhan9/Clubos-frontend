@@ -1,7 +1,11 @@
 "use client";
 
 import {
-  Dialog, DialogContent, DialogTrigger, DialogTitle, DialogHeader
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+  DialogHeader,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -9,99 +13,83 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { api } from "@/lib/axios";
 import { toast } from "react-hot-toast";
+import { api } from "@/lib/axios";
 import { useSWRConfig } from "swr";
 
-const eventSchema = z.object({
-  title: z.string().min(3),
-  description: z.string().optional(),
-  date: z.string(),
-  type: z.enum(["seminar", "workshop", "competition", "other"]),
+const taskSchema = z.object({
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  dueDate: z.string().optional(),
+  event: z.string().min(1, "Event is required"),
 });
 
-export default function AddEvent({ clubId }: { clubId: string }) {
+export default function AddTaskModal({
+  clubId,
+  events,
+  onTaskCreated,
+}: {
+  clubId: string;
+  events: any[];
+  onTaskCreated: () => void;
+}) {
   const [open, setOpen] = useState(false);
-  const [attachments, setAttachments] = useState<File[]>([]);
   const { mutate } = useSWRConfig();
 
   const form = useForm({
-    resolver: zodResolver(eventSchema),
+    resolver: zodResolver(taskSchema),
     defaultValues: {
       title: "",
-      description: "",
-      date: "",
-      type: "seminar",
+      dueDate: "",
+      event: "",
     },
   });
 
   const onSubmit = async (values: any) => {
     try {
-      const formData = new FormData();
-      formData.append("title", values.title);
-      formData.append("description", values.description || "");
-      formData.append("date", values.date);
-      formData.append("type", values.type);
-      attachments.forEach(file => formData.append("attachments", file));
-
-      await api.post(`/club/${clubId}/event`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      await api.post("/task", {
+        title: values.title,
+        dueDate: values.dueDate || undefined,
+        event: values.event,
       });
 
-      toast.success("Event created");
-      mutate(`/club/${clubId}/event`);
+      toast.success("Task created");
+      form.reset();
       setOpen(false);
+      mutate(`/task/club/${clubId}`);
+      onTaskCreated();
     } catch (err: any) {
-      toast.error("Failed to create event");
+      toast.error("Failed to create task");
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="ml-auto">Add Event</Button>
+        <Button size="sm">+ Add Task</Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create Event</DialogTitle>
+          <DialogTitle>Create Task</DialogTitle>
         </DialogHeader>
-        <form
-          className="space-y-4"
-          onSubmit={form.handleSubmit(onSubmit)}
-          encType="multipart/form-data"
-        >
-          <Input placeholder="Title" {...form.register("title")} />
-          <Textarea placeholder="Description" {...form.register("description")} />
-          <Input type="date" {...form.register("date")} />
-          <select className="w-full border rounded px-3 py-2" {...form.register("type")}>
-            <option value="seminar">Seminar</option>
-            <option value="workshop">Workshop</option>
-            <option value="competition">Competition</option>
-            <option value="other">Other</option>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Input placeholder="Task Title" {...form.register("title")} />
+          <Input type="date" {...form.register("dueDate")} />
+
+          <select
+            {...form.register("event")}
+            className="w-full border rounded px-3 py-2 text-sm"
+          >
+            <option value="">Select Event</option>
+            {events.map((event: any) => (
+              <option key={event._id} value={event._id}>
+                {event.name}
+              </option>
+            ))}
           </select>
 
-          <div>
-            <label className="font-medium">Attachments (PDF, Image)</label>
-            <Input
-              type="file"
-              multiple
-              onChange={(e) => {
-                if (e.target.files) {
-                  setAttachments(Array.from(e.target.files));
-                }
-              }}
-            />
-            {attachments.length > 0 && (
-              <ul className="text-sm mt-2 list-disc list-inside">
-                {attachments.map(file => (
-                  <li key={file.name}>{file.name}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <Button type="submit" className="w-full">Create</Button>
+          <Button type="submit" className="w-full">
+            Create Task
+          </Button>
         </form>
       </DialogContent>
     </Dialog>
