@@ -13,7 +13,8 @@ export default function AcceptInvitation() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = searchParams.get("token");
+    // safely access token on client
+    const token = searchParams?.get("token");
 
     if (!token) {
       toast.error("No invite token provided.");
@@ -21,15 +22,13 @@ export default function AcceptInvitation() {
       return;
     }
 
-    if (userLoading) return; // wait for user to load
+    if (userLoading) return;
 
     if (!user) {
-      // Not logged in - redirect to register with token in query
       router.push(`/register?token=${encodeURIComponent(token)}`);
       return;
     }
 
-    // Logged in - accept invitation
     const acceptInvite = async () => {
       try {
         setLoading(true);
@@ -45,7 +44,7 @@ export default function AcceptInvitation() {
     };
 
     acceptInvite();
-  }, [searchParams, user, userLoading, router]);
+  }, [user, userLoading, router]); // don't include searchParams here
 
   if (loading) {
     return (

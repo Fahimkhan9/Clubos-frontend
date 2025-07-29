@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/axios";
 import toast from "react-hot-toast";
-import { send } from "process";
 import Link from "next/link";
 
 type FormData = {
@@ -29,7 +28,7 @@ const fetcher = async (url: string, { arg }: { arg: FormData }) => {
 
 export default function RegisterForm() {
   const searchParams = useSearchParams();
-  const inviteToken = searchParams.get("token") || "";
+  const router = useRouter();
 
   const {
     register,
@@ -40,7 +39,8 @@ export default function RegisterForm() {
   } = useForm<FormData>();
 
   const [serverError, setServerError] = useState("");
-  const router = useRouter()
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
+
   const { trigger, isMutating } = useSWRMutation("/user/register", fetcher, {
     onError: (err: any) => {
       setServerError(err.response?.data?.message || "Registration failed");
@@ -48,11 +48,12 @@ export default function RegisterForm() {
   });
 
   useEffect(() => {
-    if (inviteToken) {
-      // Set inviteToken in the form data (hidden field concept)
-      setValue("inviteToken", inviteToken);
+    const token = searchParams.get("token");
+    if (token) {
+      setInviteToken(token);
+      setValue("inviteToken", token); // set form value
     }
-  }, [inviteToken, setValue]);
+  }, [searchParams, setValue]);
 
   const onSubmit = async (data: FormData) => {
     setServerError("");
@@ -67,15 +68,13 @@ export default function RegisterForm() {
         name: data.name,
         email: data.email,
         password: data.password,
-        inviteToken: data.inviteToken || undefined, // Only send if present
-      }
+        inviteToken: data.inviteToken || undefined,
+      };
       await trigger(sendData);
       toast.success("Registration successful!");
-      // Redirect or further action here
       router.push("/dashboard");
     } catch (err) {
-      // Error handled by onError callback
-      toast.error("Registration failed!Please try again.");
+      toast.error("Registration failed. Please try again.");
     }
   };
 
@@ -135,7 +134,7 @@ export default function RegisterForm() {
               )}
             </div>
 
-            {/* Hidden input to send inviteToken if present */}
+            {/* Hidden invite token input */}
             {inviteToken && (
               <input type="hidden" value={inviteToken} {...register("inviteToken")} />
             )}
@@ -151,6 +150,7 @@ export default function RegisterForm() {
             >
               {isMutating ? "Registering..." : "Register"}
             </Button>
+
             <div className="text-center mt-4 text-sm text-purple-600">
               <Link href="/login" className="hover:underline">
                 Already have an account? Login
