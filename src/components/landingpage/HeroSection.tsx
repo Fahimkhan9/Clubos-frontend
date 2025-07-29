@@ -2,7 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import Link from "next/link";
+
 
 export default function HeroSection() {
   return (
@@ -36,17 +37,12 @@ export default function HeroSection() {
           transition={{ delay: 0.6, duration: 0.8 }}
           className="mt-8 flex justify-center gap-4 flex-wrap"
         >
+         <Link href='/dashboard'>
           <Button size="lg" className="text-base px-6 py-3">
             Get Started
           </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="text-base px-6 py-3 flex items-center gap-2"
-          >
-            <Sparkles size={18} />
-            Live Demo
-          </Button>
+         </Link>
+         
         </motion.div>
       </div>
     </section>
