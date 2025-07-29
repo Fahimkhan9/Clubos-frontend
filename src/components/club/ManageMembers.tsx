@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 
-const fetcher = (url: string) => api.get(url).then(res => res.data);
+const fetcher = (url: string) => api.get(url).then((res) => res.data.data);
 
 export default function ManageMembers({
   clubId,
@@ -22,12 +22,12 @@ export default function ManageMembers({
 
   if (!members) return <p className="p-6">Loading members...</p>;
   if (members.error) return <p className="p-6 text-red-500">Failed to load members.</p>;
-  if (members.data.length === 0) return <p className="p-6">No members found.</p>;
-  if (members.data.length === 1 && members.data[0].user === currentUserRole) {
+  if (members.length === 0) return <p className="p-6">No members found.</p>;
+  if (members.length === 1 && members[0].user === currentUserRole) {
     return <p className="p-6">You are the only member in this club.</p>;
   }
 
-  const filtered = members?.data.filter((m: any) =>
+  const filtered = members.filter((m: any) =>
     m.user.name.toLowerCase().includes(search.toLowerCase()) ||
     m.user.email.toLowerCase().includes(search.toLowerCase())
   );
@@ -63,17 +63,45 @@ export default function ManageMembers({
     }
   };
 
+  const handleExportCSV = () => {
+    const headers = ["Name", "Email", "Role", "Designation"];
+    const rows = filtered.map((member: any) => [
+      member.user.name,
+      member.user.email,
+      member.role,
+      member.designation || "",
+    ]);
+
+    const csvContent = [headers, ...rows].map((row) => row.join(",")).join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `members_${clubId}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="mt-6">
       <h2 className="text-xl font-semibold mb-2">Manage Members</h2>
-      <Input
-        placeholder="Search by name/email"
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        className="mb-4"
-      />
+
+      <div className="flex flex-col sm:flex-row justify-between gap-2 mb-4">
+        <Input
+          placeholder="Search by name/email"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="sm:max-w-sm"
+        />
+        <Button onClick={handleExportCSV} variant="secondary">
+          Export CSV
+        </Button>
+      </div>
+
       <div className="space-y-3">
-        {filtered?.map((member: any) => (
+        {filtered.map((member: any) => (
           <div
             key={member._id}
             className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-4 border rounded"
@@ -87,10 +115,9 @@ export default function ManageMembers({
 
             {currentUserRole !== "member" && (
               <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
-                {/* Role Selector */}
                 <select
                   value={member.role}
-                  onChange={e => updateRole(member._id, e.target.value)}
+                  onChange={(e) => updateRole(member._id, e.target.value)}
                   className="border rounded px-2"
                 >
                   <option value="member">Member</option>
@@ -98,7 +125,6 @@ export default function ManageMembers({
                   <option value="admin">Admin</option>
                 </select>
 
-                {/* Designation Input */}
                 <Input
                   type="text"
                   placeholder="Edit designation"
@@ -115,7 +141,6 @@ export default function ManageMembers({
                   Update
                 </Button>
 
-                {/* Remove Button */}
                 <Button variant="destructive" onClick={() => removeMember(member.user.id)}>
                   Remove
                 </Button>

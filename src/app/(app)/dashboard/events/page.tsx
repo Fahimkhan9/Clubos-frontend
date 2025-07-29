@@ -20,14 +20,14 @@ export default function EventsPage() {
 
   // Fetch clubs user belongs to
   const { data: clubs, error } = useSWR("/club/mys", (url) =>
-    api.get(url).then((res) => res.data)
+    api.get(url).then((res) => res.data.data)
   );
-  console.log(clubs);
+
 
   useEffect(() => {
-    if (clubs?.data && clubs.data.length > 0 && !selectedClubId) {
-      setSelectedClubId(clubs.data[0]._id); // Default select first club
-    } else if (clubs?.data?.length === 0) {
+    if (clubs && clubs.length > 0 && !selectedClubId) {
+      setSelectedClubId(clubs[0]._id); // Default select first club
+    } else if (clubs?.length === 0) {
       setSelectedClubId(null); // no clubs available
     }
   }, [clubs]);
@@ -37,7 +37,7 @@ export default function EventsPage() {
 console.log(clubs);
 
   // Show message if no clubs are associated
-  if (clubs?.data.length === 0) {
+  if (clubs?.length === 0) {
     return (
       <div className="p-4 text-center text-gray-600">
         You are not associated with any clubs yet.
@@ -59,7 +59,7 @@ console.log(clubs);
             <SelectValue placeholder="Select a club" />
           </SelectTrigger>
           <SelectContent>
-            {clubs.data.map((club: any) => (
+            {clubs.map((club: any) => (
               <SelectItem key={club._id} value={club._id}>
                 {club.name}
               </SelectItem>

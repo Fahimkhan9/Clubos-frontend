@@ -74,6 +74,7 @@ export default function EventDetails() {
           </div>
         </CardContent>
       </Card>
+      
     </div>
   );
 }

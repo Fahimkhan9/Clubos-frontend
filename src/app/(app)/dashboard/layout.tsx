@@ -3,15 +3,16 @@ import { useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import PrivateRoute from "@/components/auth/PrivateRoute";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-
   const toggleSidebar = () => setIsOpen(!isOpen);
-const pathname = usePathname();
+  const pathname = usePathname();
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <PrivateRoute>
+      <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-64 bg-purple-700 text-white p-6 transform transition-transform duration-300 ease-in-out 
@@ -25,36 +26,66 @@ const pathname = usePathname();
           </button>
         </div>
         <nav className="flex flex-col space-y-4">
-          <Link href="/dashboard"  className={`px-4 py-2 rounded-lg transition ${
-    pathname === "/dashboard"
-      ? "bg-white text-purple-700 font-semibold"
-      : "bg-purple-600 hover:bg-purple-500 text-white"
-  }`}>🏠 Dashboard</Link>
-          <Link href="/dashboard/events"  className={`px-4 py-2 rounded-lg transition ${
-    pathname === "/dashboard/events"
-      ? "bg-white text-purple-700 font-semibold"
-      : "bg-purple-600 hover:bg-purple-500 text-white"
-  }`}>📅 Events</Link>
-          <Link href="/dashboard/clubs"  className={`px-4 py-2 rounded-lg transition ${
-    pathname === "/dashboard/clubs"
-      ? "bg-white text-purple-700 font-semibold"
-      : "bg-purple-600 hover:bg-purple-500 text-white"
-  }`}>🏫 Clubs</Link>
-          <Link href="/dashboard/profile"  className={`px-4 py-2 rounded-lg transition ${
-    pathname === "/dashboard/profile"
-      ? "bg-white text-purple-700 font-semibold"
-      : "bg-purple-600 hover:bg-purple-500 text-white"
-  }`}>🙍‍♂️ Profile</Link>
-   <Link href="/dashboard/budget"  className={`px-4 py-2 rounded-lg transition ${
-    pathname === "/dashboard/budget"
-      ? "bg-white text-purple-700 font-semibold"
-      : "bg-purple-600 hover:bg-purple-500 text-white"
-  }`}>Budget</Link>
-   <Link href="/dashboard/task"  className={`px-4 py-2 rounded-lg transition ${
-    pathname === "/dashboard/task"
-      ? "bg-white text-purple-700 font-semibold"
-      : "bg-purple-600 hover:bg-purple-500 text-white"
-  }`}>Task</Link>
+          <Link
+            href="/dashboard"
+            className={`px-4 py-2 rounded-lg transition ${
+              pathname === "/dashboard"
+                ? "bg-white text-purple-700 font-semibold"
+                : "bg-purple-600 hover:bg-purple-500 text-white"
+            }`}
+          >
+            🏠 Dashboard
+          </Link>
+          <Link
+            href="/dashboard/events"
+            className={`px-4 py-2 rounded-lg transition ${
+              pathname === "/dashboard/events"
+                ? "bg-white text-purple-700 font-semibold"
+                : "bg-purple-600 hover:bg-purple-500 text-white"
+            }`}
+          >
+            📅 Events
+          </Link>
+          <Link
+            href="/dashboard/clubs"
+            className={`px-4 py-2 rounded-lg transition ${
+              pathname === "/dashboard/clubs"
+                ? "bg-white text-purple-700 font-semibold"
+                : "bg-purple-600 hover:bg-purple-500 text-white"
+            }`}
+          >
+            🏫 Clubs
+          </Link>
+          <Link
+            href="/dashboard/profile"
+            className={`px-4 py-2 rounded-lg transition ${
+              pathname === "/dashboard/profile"
+                ? "bg-white text-purple-700 font-semibold"
+                : "bg-purple-600 hover:bg-purple-500 text-white"
+            }`}
+          >
+            🙍‍♂️ Profile
+          </Link>
+          <Link
+            href="/dashboard/budget"
+            className={`px-4 py-2 rounded-lg transition ${
+              pathname === "/dashboard/budget"
+                ? "bg-white text-purple-700 font-semibold"
+                : "bg-purple-600 hover:bg-purple-500 text-white"
+            }`}
+          >
+            💰 Budget
+          </Link>
+          <Link
+            href="/dashboard/task"
+            className={`px-4 py-2 rounded-lg transition ${
+              pathname === "/dashboard/task"
+                ? "bg-white text-purple-700 font-semibold"
+                : "bg-purple-600 hover:bg-purple-500 text-white"
+            }`}
+          >
+            ✅ Tasks
+          </Link>
         </nav>
       </aside>
 
@@ -70,10 +101,9 @@ const pathname = usePathname();
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 overflow-y-auto bg-gray-50">
-          {children}
-        </main>
+        <main className="flex-1 p-6 overflow-y-auto bg-gray-50">{children}</main>
       </div>
     </div>
+    </PrivateRoute>
   );
 }

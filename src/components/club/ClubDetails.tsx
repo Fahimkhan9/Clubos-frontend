@@ -8,10 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import InviteMember from "./InviteMember";
 import ManageMembers from "./ManageMembers";
 
+
 const fetcher = (url: string) => api.get(url).then(res => res.data);
 
 export default function ClubDetails() {
-  const { id } = useParams(); // get club ID from route
+  const { id } = useParams(); 
   const { user } = useCurrentUser();
 
   const { data: club, isLoading } = useSWR(`/club/${id}`, fetcher);
@@ -42,7 +43,28 @@ const isAdmin= memberInfo.role === 'admin';
       </Card>
 
       {/*  Invite Members */}
+      <div className="flex justify-end my-6">
+        
       {isAdminOrMod && <InviteMember clubId={id as string} />}
+      </div>
+{!isAdminOrMod && (
+  <div className="fixed bottom-6 right-6 z-50">
+    <Card className="shadow-lg w-[280px] border-primary border">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base">Limited Access</CardTitle>
+      </CardHeader>
+      <CardContent className="text-sm text-muted-foreground space-y-1">
+        <p>Only admins and moderators can:</p>
+        <ul className="list-disc list-inside">
+          <li>Invite members</li>
+          <li>Manage members</li>
+          <li>Export member data</li>
+        </ul>
+      </CardContent>
+    </Card>
+  </div>
+)}
+
 
       {/*  Member Management */}
       {

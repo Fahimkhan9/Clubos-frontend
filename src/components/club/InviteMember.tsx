@@ -7,11 +7,24 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "react-hot-toast";
 import { api } from "@/lib/axios";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Copy } from "lucide-react";
 
 const inviteSchema = z.object({
   email: z.string().email(),
@@ -23,6 +36,7 @@ type InviteSchema = z.infer<typeof inviteSchema>;
 
 export default function InviteMember({ clubId }: { clubId: string }) {
   const [open, setOpen] = useState(false);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
 
   const {
     register,
@@ -36,12 +50,19 @@ export default function InviteMember({ clubId }: { clubId: string }) {
 
   const onSubmit = async (data: InviteSchema) => {
     try {
-      await api.post(`/club/${clubId}/invite`, data);
-      toast.success("Invitation sent!");
+      const res = await api.post(`/club/${clubId}/invite`, data);
+      toast.success("Invite link generated!");
+      setInviteLink(res.data.inviteLink);
       reset();
-      setOpen(false);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "Failed to send invite.");
+      toast.error(err?.response?.data?.message || "Failed to generate invite.");
+    }
+  };
+
+  const handleCopy = () => {
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink);
+      toast.success("Link copied to clipboard!");
     }
   };
 
@@ -50,7 +71,7 @@ export default function InviteMember({ clubId }: { clubId: string }) {
       <DialogTrigger asChild>
         <Button>Invite Member</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-md w-full">
         <DialogHeader>
           <DialogTitle>Invite a New Member</DialogTitle>
         </DialogHeader>
@@ -59,18 +80,31 @@ export default function InviteMember({ clubId }: { clubId: string }) {
           <div>
             <Label>Email</Label>
             <Input type="email" placeholder="Email" {...register("email")} />
-            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-sm text-red-500">{errors.email.message}</p>
+            )}
           </div>
 
           <div>
             <Label>Designation</Label>
-            <Input placeholder="e.g. General Secretary" {...register("designation")} />
-            {errors.designation && <p className="text-sm text-red-500">{errors.designation.message}</p>}
+            <Input
+              placeholder="e.g. General Secretary"
+              {...register("designation")}
+            />
+            {errors.designation && (
+              <p className="text-sm text-red-500">
+                {errors.designation.message}
+              </p>
+            )}
           </div>
 
           <div>
             <Label>Role</Label>
-            <Select onValueChange={(value) => setValue("role", value as InviteSchema["role"])}>
+            <Select
+              onValueChange={(value) =>
+                setValue("role", value as InviteSchema["role"])
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select Role" />
               </SelectTrigger>
@@ -80,11 +114,33 @@ export default function InviteMember({ clubId }: { clubId: string }) {
                 <SelectItem value="member">Member</SelectItem>
               </SelectContent>
             </Select>
-            {errors.role && <p className="text-sm text-red-500">{errors.role.message}</p>}
+            {errors.role && (
+              <p className="text-sm text-red-500">{errors.role.message}</p>
+            )}
           </div>
 
+          {inviteLink && (
+            <div className="p-3 border rounded-md bg-gray-100 space-y-2">
+              <p className="text-sm font-medium">🔗 Invite Link</p>
+              <div className="flex items-center gap-2">
+                <div className="flex-1 overflow-x-auto whitespace-nowrap rounded bg-white px-3 py-1 text-sm text-blue-700 border max-w-full">
+                  {inviteLink}
+                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleCopy}
+                >
+                  <Copy className="w-4 h-4 mr-1" />
+                  Copy
+                </Button>
+              </div>
+            </div>
+          )}
+
           <Button type="submit" className="w-full">
-            Send Invite
+            Get Invite Link
           </Button>
         </form>
       </DialogContent>

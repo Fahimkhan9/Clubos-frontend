@@ -1,11 +1,7 @@
 "use client";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogTitle,
-  DialogHeader,
+  Dialog, DialogContent, DialogTrigger, DialogTitle, DialogHeader
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -13,83 +9,114 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { toast } from "react-hot-toast";
+import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/lib/axios";
+import { toast } from "react-hot-toast";
 import { useSWRConfig } from "swr";
 
-const taskSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
-  dueDate: z.string().optional(),
-  event: z.string().min(1, "Event is required"),
+const eventSchema = z.object({
+  title: z.string().min(3, "Title is too short"),
+  description: z.string().optional(),
+  date: z
+    .string()
+    .refine((val) => {
+      const selected = new Date(val);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return selected > today;
+    }, {
+      message: "Date must be in the future",
+    }),
+  type: z.enum(["seminar", "workshop", "competition", "other"]),
 });
 
-export default function AddTaskModal({
-  clubId,
-  events,
-  onTaskCreated,
-}: {
-  clubId: string;
-  events: any[];
-  onTaskCreated: () => void;
-}) {
+export default function AddEvent({ clubId }: { clubId: string }) {
   const [open, setOpen] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const { mutate } = useSWRConfig();
 
   const form = useForm({
-    resolver: zodResolver(taskSchema),
+    resolver: zodResolver(eventSchema),
     defaultValues: {
       title: "",
-      dueDate: "",
-      event: "",
+      description: "",
+      date: "",
+      type: "seminar",
     },
   });
 
   const onSubmit = async (values: any) => {
     try {
-      await api.post("/task", {
-        title: values.title,
-        dueDate: values.dueDate || undefined,
-        event: values.event,
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("description", values.description || "");
+      formData.append("date", values.date);
+      formData.append("type", values.type);
+      attachments.forEach(file => formData.append("attachments", file));
+
+      await api.post(`/club/${clubId}/event`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      toast.success("Task created");
-      form.reset();
+      toast.success("Event created");
+      mutate(`/club/${clubId}/event`);
       setOpen(false);
-      mutate(`/task/club/${clubId}`);
-      onTaskCreated();
     } catch (err: any) {
-      toast.error("Failed to create task");
+      toast.error("Failed to create event");
     }
   };
+
+  const today = new Date().toISOString().split("T")[0]; // format YYYY-MM-DD
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm">+ Add Task</Button>
+        <Button className="ml-auto">Add Event</Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Create Task</DialogTitle>
+          <DialogTitle>Create Event</DialogTitle>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <Input placeholder="Task Title" {...form.register("title")} />
-          <Input type="date" {...form.register("dueDate")} />
-
-          <select
-            {...form.register("event")}
-            className="w-full border rounded px-3 py-2 text-sm"
-          >
-            <option value="">Select Event</option>
-            {events.map((event: any) => (
-              <option key={event._id} value={event._id}>
-                {event.name}
-              </option>
-            ))}
+        <form
+          className="space-y-4"
+          onSubmit={form.handleSubmit(onSubmit)}
+          encType="multipart/form-data"
+        >
+          <Input placeholder="Title" {...form.register("title")} />
+          <Textarea placeholder="Description" {...form.register("description")} />
+          <Input
+            type="date"
+            min={today}
+            {...form.register("date")}
+          />
+          <select className="w-full border rounded px-3 py-2" {...form.register("type")}>
+            <option value="seminar">Seminar</option>
+            <option value="workshop">Workshop</option>
+            <option value="competition">Competition</option>
+            <option value="other">Other</option>
           </select>
 
-          <Button type="submit" className="w-full">
-            Create Task
-          </Button>
+          <div>
+            <label className="font-medium">Attachments (PDF, Image)</label>
+            <Input
+              type="file"
+              multiple
+              onChange={(e) => {
+                if (e.target.files) {
+                  setAttachments(Array.from(e.target.files));
+                }
+              }}
+            />
+            {attachments.length > 0 && (
+              <ul className="text-sm mt-2 list-disc list-inside">
+                {attachments.map(file => (
+                  <li key={file.name}>{file.name}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <Button type="submit" className="w-full">Create</Button>
         </form>
       </DialogContent>
     </Dialog>

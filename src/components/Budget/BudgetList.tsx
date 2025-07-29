@@ -40,7 +40,7 @@ export function BudgetList({ clubId }: { clubId: string }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Filter Section */}
       <div className="flex flex-wrap items-end gap-4">
         <div>
@@ -81,43 +81,57 @@ export function BudgetList({ clubId }: { clubId: string }) {
         data.map((item: any) => (
           <div
             key={item._id}
-            className="border p-4 rounded-md flex justify-between items-center"
+            className="border p-4 rounded-xl shadow-sm bg-white hover:shadow-md transition-all duration-200"
           >
-            <div>
-              <h4 className="font-semibold">{item.title}</h4>
-              <p className="text-sm text-muted-foreground">
-                ৳{item.amount} |{" "}
-                <Badge
-                  variant={item.type === "income" ? "outline" : "destructive"}
-                >
-                  {item.type}
-                </Badge>{" "}
-                |{" "}
-                {item.createdAt &&
-                  format(new Date(item.createdAt), "PPP")}{" "}
-                by {item.createdBy.email}
-              </p>
-              {item.category && (
-                <p className="text-xs text-muted-foreground">
-                  Category: {item.category}
+            <div className="flex justify-between gap-4 items-start">
+              {/* Left Section */}
+              <div className="space-y-1">
+                <h4 className="text-lg font-semibold text-purple-700 flex items-center gap-1">
+                  {item.type === "income" ? "💰" : "💸"} {item.title}
+                </h4>
+
+                <p className="text-sm text-muted-foreground">
+                  {item.amount.toLocaleString()}{" "}
+                  <Badge
+                    variant={item.type === "income" ? "outline" : "destructive"}
+                    className="ml-2 capitalize"
+                  >
+                    {item.type}
+                  </Badge>
                 </p>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() => setEditingItem(item)}
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="destructive"
-                onClick={() => handleDelete(item._id)}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+
+                <p className="text-xs text-muted-foreground">
+                  Added on{" "}
+                  <span className="font-medium">
+                    {format(new Date(item.createdAt), "PPP")}
+                  </span>{" "}
+                  by <span className="text-purple-600">{item.createdBy.email}</span>
+                </p>
+
+                {item.category && (
+                  <p className="text-xs text-gray-500">📂 Category: {item.category}</p>
+                )}
+              </div>
+
+              {/* Right Actions */}
+              <div className="flex gap-2">
+                <Button
+                  size="icon"
+                  variant="outline"
+                  onClick={() => setEditingItem(item)}
+                  title="Edit"
+                >
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="destructive"
+                  onClick={() => handleDelete(item._id)}
+                  title="Delete"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
         ))
