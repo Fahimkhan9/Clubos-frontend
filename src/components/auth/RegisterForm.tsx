@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/lib/axios";
 import toast from "react-hot-toast";
 import { send } from "process";
+import Link from "next/link";
 
 type FormData = {
   name: string;
@@ -39,7 +40,7 @@ export default function RegisterForm() {
   } = useForm<FormData>();
 
   const [serverError, setServerError] = useState("");
-const router=useRouter()
+  const router = useRouter()
   const { trigger, isMutating } = useSWRMutation("/user/register", fetcher, {
     onError: (err: any) => {
       setServerError(err.response?.data?.message || "Registration failed");
@@ -62,7 +63,7 @@ const router=useRouter()
     }
 
     try {
-      const sendData={
+      const sendData = {
         name: data.name,
         email: data.email,
         password: data.password,
@@ -150,6 +151,11 @@ const router=useRouter()
             >
               {isMutating ? "Registering..." : "Register"}
             </Button>
+            <div className="text-center mt-4 text-sm text-purple-600">
+              <Link href="/login" className="hover:underline">
+                Already have an account? Login
+              </Link>
+            </div>
           </form>
         </CardContent>
       </Card>

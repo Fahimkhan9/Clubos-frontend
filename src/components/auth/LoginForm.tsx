@@ -10,8 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/axios";
 import toast from "react-hot-toast";
-import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
+
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 type FormData = {
   email: string;
@@ -31,16 +33,17 @@ export default function LoginForm() {
   } = useForm<FormData>();
 
   const [serverError, setServerError] = useState("");
-  const router=useRouter()
+  const router = useRouter()
   const { trigger, isMutating } = useSWRMutation("/user/login", fetcher, {
     onError: (err: any) => {
       setServerError(err.response?.data?.message || "Login failed");
     },
   });
-
+const {mutate}=useCurrentUser()
   const onSubmit = async (data: FormData) => {
     setServerError("");
     await trigger(data);
+    await mutate()
     toast.success("Login successful!");
     router.push("/"); // Redirect to home after successful login
   };
@@ -88,6 +91,14 @@ export default function LoginForm() {
             >
               {isMutating ? "Logging in..." : "Login"}
             </Button>
+            <div className="flex justify-between mt-4 text-sm text-purple-600">
+              <Link href="/register" className="hover:underline">
+                New user? Register
+              </Link>
+              <Link href="/forgot-password" className="hover:underline">
+                Forgot password?
+              </Link>
+            </div>
           </form>
         </CardContent>
       </Card>

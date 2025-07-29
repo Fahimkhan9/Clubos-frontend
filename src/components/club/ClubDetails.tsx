@@ -35,7 +35,7 @@ const isAdmin= memberInfo.role === 'admin';
           <p><strong>About:</strong> {club.data.about}</p>
           <p><strong>University:</strong> {club.data.university}</p>
           <p><strong>Session:</strong> {club.data.sessionYear}</p>
-          <p><strong>Total Members:</strong> {club.data.memberCount}</p>
+          <p><strong>Total Members:</strong> {club.data.members.length}</p>
           <p><strong>Your Role:</strong> {memberInfo.role}</p>
           <p><strong>Your Designation:</strong> {memberInfo.designation}</p>
 
