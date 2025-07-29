@@ -32,7 +32,7 @@ export default function Navbar() {
   return (
     <nav className="flex justify-between items-center py-4 px-6 border-b">
       <Link href="/" className="text-xl font-semibold text-primary">
-        ClubOS
+        Club<span className="text-pink-500">OS</span>
       </Link>
 
       <div className="flex gap-4 items-center">

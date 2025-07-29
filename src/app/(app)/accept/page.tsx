@@ -1,11 +1,14 @@
 import AcceptInvitation from '@/components/club/AcceptInvitation'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 function AcceptInvitationPage() {
   return (
-    <div>
-        <AcceptInvitation/>
-    </div>
+    
+      <Suspense fallback={<p className="text-center mt-10">Loading...</p>}>
+      <AcceptInvitation/>
+      </Suspense>
+        
+
   )
 }
 
