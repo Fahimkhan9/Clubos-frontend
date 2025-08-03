@@ -34,7 +34,7 @@ export default function EventsPage() {
 
   if (error) return <div>Failed to load clubs</div>;
   if (!clubs) return <div>Loading clubs...</div>;
-console.log(clubs);
+
 
   // Show message if no clubs are associated
   if (clubs?.length === 0) {

@@ -85,33 +85,48 @@ export function BudgetList({ clubId }: { clubId: string }) {
           >
             <div className="flex justify-between gap-4 items-start">
               {/* Left Section */}
-              <div className="space-y-1">
-                <h4 className="text-lg font-semibold text-purple-700 flex items-center gap-1">
-                  {item.type === "income" ? "💰" : "💸"} {item.title}
-                </h4>
+<div className="space-y-1">
+  <h4 className="text-lg font-semibold text-purple-700 flex items-center gap-1">
+    {item.type === "income" ? "💰" : "💸"} {item.title}
+  </h4>
 
-                <p className="text-sm text-muted-foreground">
-                  {item.amount.toLocaleString()}{" "}
-                  <Badge
-                    variant={item.type === "income" ? "outline" : "destructive"}
-                    className="ml-2 capitalize"
-                  >
-                    {item.type}
-                  </Badge>
-                </p>
+  <p className="text-sm text-muted-foreground">
+    {item.amount.toLocaleString()}{" "}
+    <Badge
+      variant={item.type === "income" ? "outline" : "destructive"}
+      className="ml-2 capitalize"
+    >
+      {item.type}
+    </Badge>
+  </p>
 
-                <p className="text-xs text-muted-foreground">
-                  Added on{" "}
-                  <span className="font-medium">
-                    {format(new Date(item.createdAt), "PPP")}
-                  </span>{" "}
-                  by <span className="text-purple-600">{item.createdBy.email}</span>
-                </p>
+  {/* Added on section */}
+  <p className="text-xs text-muted-foreground">
+    Added on{" "}
+    <span className="font-medium">
+      {format(new Date(item.createdAt), "PPP")}
+    </span>
+  </p>
 
-                {item.category && (
-                  <p className="text-xs text-gray-500">📂 Category: {item.category}</p>
-                )}
-              </div>
+  {/* Added by section with avatar */}
+  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+    <img
+      src={item.createdBy?.avatar || "/default-avatar.png"}
+      alt={item.createdBy?.email}
+      className="w-6 h-6 rounded-full object-cover border"
+    />
+    <span>
+      Added by <span className="text-purple-600 font-medium">{item.createdBy?.email}</span>
+    </span>
+  </div>
+
+  {item.category && (
+    <p className="text-xs text-gray-500">📂 Category: {item.category}</p>
+  )}
+</div>
+
+
+
 
               {/* Right Actions */}
               <div className="flex gap-2">

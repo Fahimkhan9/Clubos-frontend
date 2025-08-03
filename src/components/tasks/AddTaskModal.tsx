@@ -64,7 +64,7 @@ export default function AddTaskModal({ clubId, currentUserId }: { clubId: string
       toast.error('Failed to create task');
     }
   };
-console.log(members);
+
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

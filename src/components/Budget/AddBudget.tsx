@@ -49,8 +49,8 @@ export default function AddBudget({ clubId }: { clubId: string }) {
       setOpen(false);
       mutate(`/club/${clubId}/budget/summary`);
       mutate(`/club/${clubId}/budget`)
-      mutate(`/club/${clubId}/budget/monthly`); // if you're listing budget items too
-      ; // if you're listing budget items too
+      mutate(`/club/${clubId}/budget/monthly`); 
+      
     } catch (err) {
       toast.error("Something went wrong");
       console.error(err);

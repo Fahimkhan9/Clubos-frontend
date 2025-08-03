@@ -2,6 +2,7 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function CTASection() {
   return (
@@ -17,9 +18,9 @@ export default function CTASection() {
         <p className="text-lg mb-8">
           ClubOS is free to use for student organizations. Start managing better today.
         </p>
-        <Button size="lg" variant="secondary">
+       <Link href='/dashboard'> <Button size="lg" variant="secondary">
           Get Started For Free
-        </Button>
+        </Button></Link>
       </motion.div>
     </section>
   );

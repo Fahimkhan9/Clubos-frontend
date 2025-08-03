@@ -10,6 +10,7 @@ export default function BudgetSummary({ clubId }: { clubId: string }) {
 
   if (isLoading) return <div>Loading summary...</div>;
 
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div className="bg-green-100 p-4 rounded-md">

@@ -44,7 +44,7 @@ export default function UpdateProfile() {
   });
 
   const { mutate } = useSWR("/user/profile");
-  console.log(user);
+
 
   useEffect(() => {
     if (user) {
@@ -70,7 +70,7 @@ export default function UpdateProfile() {
       const res = await api.patch("/user/profile", formData,{
         headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log(res)
+  
       mutate();
       toast.success("Profile updated successfully!");
 

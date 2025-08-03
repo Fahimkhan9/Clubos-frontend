@@ -27,7 +27,7 @@ export default function EventsPage() {
   const { data: clubs, error } = useSWR("/club/mys", (url) =>
     api.get(url).then((res) => res.data.data)
   );
-  console.log(clubs);
+ 
 
   useEffect(() => {
     if (clubs && clubs.length > 0 && !selectedClubId) {
@@ -39,7 +39,6 @@ export default function EventsPage() {
 
   if (error) return <div>Failed to load clubs</div>;
   if (!clubs) return <div>Loading clubs...</div>;
-console.log(clubs);
 
   // Show message if no clubs are associated
   if (clubs?.length === 0) {
@@ -82,7 +81,7 @@ console.log(clubs);
                  <AddBudget clubId={selectedClubId} />
                </div>
          
-               <BudgetSummary clubId={selectedClubId} />
+               <BudgetSummary key={selectedClubId} clubId={selectedClubId} />
                <BudgetChart  clubId={selectedClubId} />
                <div className="selectedClubId flex justify-end mt-4">
            <ExportCSV clubId={selectedClubId} />

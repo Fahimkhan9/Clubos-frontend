@@ -21,7 +21,7 @@ export default function ClubDetails() {
   if (!club) return <p className="p-6 text-red-500">Club not found.</p>;
   const memberInfo = club.data.members.find((m: { user: any; }) => m.user === user?._id);
   const isAdminOrMod = memberInfo.role === 'admin' || memberInfo.role === 'moderator';
-console.log(club);
+
 const isAdmin= memberInfo.role === 'admin';
 
   return (
