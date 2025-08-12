@@ -51,7 +51,12 @@ export default function InviteMember({ clubId }: { clubId: string }) {
   const onSubmit = async (data: InviteSchema) => {
     try {
       const res = await api.post(`/club/${clubId}/invite`, data);
-      toast.success("Invite link generated!");
+      if(res.data.inviteLink){
+        toast.success(`Invite Email Sent to ${data.email} successfully!`);
+      }else{
+toast.success(`${data.email} has been added to club successfully!`);
+      }
+      setOpen(false)
       setInviteLink(res.data.inviteLink);
       reset();
     } catch (err: any) {
@@ -119,25 +124,7 @@ export default function InviteMember({ clubId }: { clubId: string }) {
             )}
           </div>
 
-          {inviteLink && (
-            <div className="p-3 border rounded-md bg-gray-100 space-y-2">
-              <p className="text-sm font-medium">🔗 Invite Link</p>
-              <div className="flex items-center gap-2">
-                <div className="flex-1 overflow-x-auto whitespace-nowrap rounded bg-white px-3 py-1 text-sm text-blue-700 border max-w-full">
-                  {inviteLink}
-                </div>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleCopy}
-                >
-                  <Copy className="w-4 h-4 mr-1" />
-                  Copy
-                </Button>
-              </div>
-            </div>
-          )}
+          
 
           <Button type="submit" className="w-full">
             Get Invite Link

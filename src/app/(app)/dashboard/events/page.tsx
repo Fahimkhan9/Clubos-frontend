@@ -22,7 +22,7 @@ export default function EventsPage() {
   const { data: clubs, error } = useSWR("/club/mys", (url) =>
     api.get(url).then((res) => res.data.data)
   );
-
+  
 
   useEffect(() => {
     if (clubs && clubs.length > 0 && !selectedClubId) {
