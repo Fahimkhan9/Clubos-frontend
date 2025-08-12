@@ -7,6 +7,7 @@ import { CalendarDays, Users, ClipboardList } from "lucide-react";
 import { api } from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import PrivateRoute from "@/components/auth/PrivateRoute";
 
 const fetcher = (url: string) => api.get(url).then(res => res.data.data);
 
@@ -56,7 +57,8 @@ function DashboardCard({
   buttonText?: string;
 }) {
   return (
-    <Card className="flex flex-col justify-between h-full">
+    <PrivateRoute>
+      <Card className="flex flex-col justify-between h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{label}</CardTitle>
         {icon}
@@ -72,5 +74,6 @@ function DashboardCard({
         </CardFooter>
       )}
     </Card>
+    </PrivateRoute>
   );
 }

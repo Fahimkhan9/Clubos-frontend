@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { toast } from "react-hot-toast";
 import { api } from "@/lib/axios";
+import { useRouter } from "next/navigation";
 
 function LoadingDots() {
   return (
@@ -18,12 +19,13 @@ function LoadingDots() {
 
 export default function Navbar() {
   const { user, isAuthenticated, mutate, isLoading } = useCurrentUser();
-
+  const router=useRouter()
   const handleLogout = async () => {
     try {
       await api.post("/user/logout"); // your backend logout route
       mutate(null); // reset user
       toast.success("Logged out");
+      router.push("/login"); // redirect to login
     } catch (err) {
       toast.error("Logout failed");
     }
