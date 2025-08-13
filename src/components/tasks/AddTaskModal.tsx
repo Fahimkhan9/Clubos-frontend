@@ -29,6 +29,7 @@ const taskSchema = z.object({
 
 export default function AddTaskModal({ clubId, currentUserId }: { clubId: string; currentUserId: string }) {
   const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { mutate } = useSWRConfig();
 
   const { data: events } = useSWR(`/club/${clubId}/event`, (url) =>
@@ -50,6 +51,7 @@ export default function AddTaskModal({ clubId, currentUserId }: { clubId: string
 
   const onSubmit = async (values: any) => {
     try {
+      setIsSubmitting(true);
       const payload = {
         ...values,
         assignedBy: currentUserId,
@@ -62,9 +64,10 @@ export default function AddTaskModal({ clubId, currentUserId }: { clubId: string
       form.reset();
     } catch (err: any) {
       toast.error('Failed to create task');
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -100,7 +103,7 @@ export default function AddTaskModal({ clubId, currentUserId }: { clubId: string
             </Select>
           </div>
           <div>
-            <Label>Event</Label>
+            <Label>Event(Optional)</Label>
             <Select onValueChange={(val) => form.setValue('event', val)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select event" />
@@ -114,8 +117,12 @@ export default function AddTaskModal({ clubId, currentUserId }: { clubId: string
               </SelectContent>
             </Select>
           </div>
-          <Button type="submit" className="w-full">
-            Create
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Creating...' : 'Create'}
           </Button>
         </form>
       </DialogContent>

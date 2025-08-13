@@ -19,6 +19,7 @@ import BudgetSummary from "@/components/Budget/BudgetSummary";
 import BudgetChart from "@/components/Budget/BudgetChart";
 import ExportCSV from "@/components/Budget/ExportCSV";
 import { BudgetList } from "@/components/Budget/BudgetList";
+import Budget from "@/components/Budget/Budget";
 
 export default function EventsPage() {
   const [selectedClubId, setSelectedClubId] = useState<string | null>(null);
@@ -27,7 +28,7 @@ export default function EventsPage() {
   const { data: clubs, error } = useSWR("/club/mys", (url) =>
     api.get(url).then((res) => res.data.data)
   );
- 
+
 
   useEffect(() => {
     if (clubs && clubs.length > 0 && !selectedClubId) {
@@ -71,25 +72,12 @@ export default function EventsPage() {
           </SelectContent>
         </Select>
 
-       
+
       </div>
- {/* Only show AddEvent if a club is selected */}
-        {selectedClubId && (
-          <div className="p-6 space-y-6">
-               <div className="flex items-center justify-between">
-                 <h2 className="text-2xl font-semibold">Budget Management</h2>
-                 <AddBudget clubId={selectedClubId} />
-               </div>
-         
-               <BudgetSummary key={selectedClubId} clubId={selectedClubId} />
-               <BudgetChart  clubId={selectedClubId} />
-               <div className="selectedClubId flex justify-end mt-4">
-           <ExportCSV clubId={selectedClubId} />
-         </div>
-         
-                <BudgetList clubId={selectedClubId} />
-             </div>
-        )}
+      {/* Only show AddEvent if a club is selected */}
+      {selectedClubId && (
+        <Budget clubId={selectedClubId} />
+      )}
     </div>
   );
 }
