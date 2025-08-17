@@ -1,5 +1,6 @@
 import ChangePassword from '@/components/auth/ChangePassword'
 import  CreateClub  from '@/components/club/CreateClub'
+import LoggedInDevices from '@/components/profile/LoggedinDevices'
 import UpdateProfile from '@/components/profile/UpdateProfile'
 import React from 'react'
 
@@ -18,6 +19,9 @@ function ProfilePage() {
         <UpdateProfile/>
         <div>
           <ChangePassword/>
+        </div>
+        <div className='py-6'>
+          <LoggedInDevices />
         </div>
       
     </div>
