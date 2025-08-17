@@ -1,4 +1,3 @@
-// components/Navbar.tsx
 "use client";
 
 import Link from "next/link";
@@ -19,13 +18,14 @@ function LoadingDots() {
 
 export default function Navbar() {
   const { user, isAuthenticated, mutate, isLoading } = useCurrentUser();
-  const router=useRouter()
+  const router = useRouter();
+
   const handleLogout = async () => {
     try {
-      await api.post("/user/logout"); // your backend logout route
-      mutate(null); // reset user
+      await api.post("/user/signout"); // backend logout route
+      mutate(null, false); // reset SWR cache for current user
       toast.success("Logged out");
-      router.push("/login"); // redirect to login
+      router.push("/"); // redirect to home
     } catch (err) {
       toast.error("Logout failed");
     }
@@ -40,7 +40,9 @@ export default function Navbar() {
       <div className="flex gap-4 items-center">
         <Link href="/dashboard">Dashboard</Link>
 
-        {isLoading ? <LoadingDots/> : isAuthenticated ? (
+        {isLoading ? (
+          <LoadingDots />
+        ) : isAuthenticated ? (
           <>
             <span className="text-sm">Hi, {user.name}</span>
             <Button onClick={handleLogout} variant="outline">

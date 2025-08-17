@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import { UAParser } from "ua-parser-js";
 import { Laptop, Smartphone, Tablet } from "lucide-react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useRouter } from "next/navigation";
 
 type Session = {
   _id: string;
@@ -33,7 +35,9 @@ type Session = {
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
 export default function LoggedinDevices() {
-  const { data, mutate, isLoading } = useSWR("/sessions", fetcher);
+  const { data, mutate: sessionsMutate, isLoading } = useSWR("/sessions", fetcher);
+  const { mutate: userMutate } = useCurrentUser();
+  const router = useRouter();
 
   const [openDialog, setOpenDialog] = useState(false);
   const [targetSessionId, setTargetSessionId] = useState<string | null>(null);
@@ -50,10 +54,10 @@ export default function LoggedinDevices() {
 
   const confirmLogout = (sessionId?: string) => {
     if (sessionId) {
-      setLogoutAll(false); // logout single device
+      setLogoutAll(false); 
       setTargetSessionId(sessionId);
     } else {
-      setLogoutAll(true); // logout all devices
+      setLogoutAll(true); 
       setTargetSessionId(null);
     }
     setOpenDialog(true);
@@ -61,14 +65,24 @@ export default function LoggedinDevices() {
 
   const handleConfirmLogout = async () => {
     try {
+      let isCurrentDeviceLogout = false;
+
       if (logoutAll) {
         await api.delete("/sessions");
         toast.success("Logged out from all devices");
+        isCurrentDeviceLogout = true;
       } else if (targetSessionId) {
         await api.delete(`/sessions/${targetSessionId}`);
         toast.success("Logged out from device");
+        if (targetSessionId === currentToken) isCurrentDeviceLogout = true;
       }
-      mutate();
+
+      sessionsMutate(); // refresh sessions list
+      userMutate(null, false); // reset current user globally
+
+      if (isCurrentDeviceLogout) {
+        router.push("/"); // redirect home
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to logout");
     } finally {
@@ -100,8 +114,7 @@ export default function LoggedinDevices() {
 
   const targetSession = sessions.find((s) => s._id === targetSessionId);
   const isTargetCurrent =
-    targetSession?._id === data?.sessionId ||
-    targetSession?._id === currentToken;
+    targetSession?._id === data?.sessionId || targetSession?._id === currentToken;
 
   return (
     <>
