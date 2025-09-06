@@ -6,6 +6,13 @@ import { api } from "@/lib/axios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data.data);
 
@@ -19,6 +26,8 @@ export default function ManageMembers({
   const { data: members, mutate } = useSWR(`/club/${clubId}/members`, fetcher);
   const [search, setSearch] = useState("");
   const [designationEdit, setDesignationEdit] = useState<{ [key: string]: string }>({});
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<any>(null);
 
   if (!members) return <p className="p-6">Loading members...</p>;
   if (members.error) return <p className="p-6 text-red-500">Failed to load members.</p>;
@@ -53,13 +62,17 @@ export default function ManageMembers({
     }
   };
 
-  const removeMember = async (userId: string) => {
+  const removeMember = async () => {
+    if (!selectedMember) return;
     try {
-      await api.delete(`/club/${clubId}/member/${userId}`);
+      await api.delete(`/club/${clubId}/members/${selectedMember.user.id}`);
       toast.success("Removed");
       mutate();
     } catch {
       toast.error("Remove failed");
+    } finally {
+      setConfirmOpen(false);
+      setSelectedMember(null);
     }
   };
 
@@ -83,7 +96,7 @@ export default function ManageMembers({
     link.click();
     document.body.removeChild(link);
   };
-
+console.log(members);
   return (
     <div className="mt-6">
       <h2 className="text-xl font-semibold mb-2">Manage Members</h2>
@@ -117,7 +130,7 @@ export default function ManageMembers({
               <div className="flex flex-col sm:flex-row gap-2 mt-2 sm:mt-0">
                 <select
                   value={member.role}
-                  onChange={(e) => updateRole(member._id, e.target.value)}
+                  onChange={(e) => updateRole(member.user.id, e.target.value)}
                   className="border rounded px-2"
                 >
                   <option value="member">Member</option>
@@ -128,11 +141,11 @@ export default function ManageMembers({
                 <Input
                   type="text"
                   placeholder="Edit designation"
-                  value={designationEdit[member._id] ?? member.designation ?? ""}
+                  value={designationEdit[member.user.id] ?? member.designation ?? ""}
                   onChange={(e) =>
                     setDesignationEdit((prev) => ({
                       ...prev,
-                      [member._id]: e.target.value,
+                      [member.user.id]: e.target.value,
                     }))
                   }
                   className="w-40"
@@ -141,7 +154,13 @@ export default function ManageMembers({
                   Update
                 </Button>
 
-                <Button variant="destructive" onClick={() => removeMember(member.user.id)}>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    setSelectedMember(member);
+                    setConfirmOpen(true);
+                  }}
+                >
                   Remove
                 </Button>
               </div>
@@ -149,6 +168,28 @@ export default function ManageMembers({
           </div>
         ))}
       </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Removal</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600">
+            Are you sure you want to remove{" "}
+            <span className="font-medium">{selectedMember?.user.name}</span> (
+            {selectedMember?.user.email}) from the club? This action cannot be undone.
+          </p>
+          <DialogFooter className="mt-4 flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={removeMember}>
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

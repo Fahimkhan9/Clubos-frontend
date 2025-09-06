@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Copy } from "lucide-react";
+import { mutate } from "swr";
 
 const inviteSchema = z.object({
   email: z.string().email(),
@@ -51,23 +51,17 @@ export default function InviteMember({ clubId }: { clubId: string }) {
   const onSubmit = async (data: InviteSchema) => {
     try {
       const res = await api.post(`/club/${clubId}/invite`, data);
-      if(res.data.inviteLink){
+      if (res.data.inviteLink) {
         toast.success(`Invite Email Sent to ${data.email} successfully!`);
-      }else{
-toast.success(`${data.email} has been added to club successfully!`);
+      } else {
+        toast.success(`${data.email} has been added to club successfully!`);
       }
-      setOpen(false)
+      setOpen(false);
       setInviteLink(res.data.inviteLink);
       reset();
+      mutate(`/club/${clubId}/members`);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Failed to generate invite.");
-    }
-  };
-
-  const handleCopy = () => {
-    if (inviteLink) {
-      navigator.clipboard.writeText(inviteLink);
-      toast.success("Link copied to clipboard!");
     }
   };
 
@@ -79,9 +73,24 @@ toast.success(`${data.email} has been added to club successfully!`);
       <DialogContent className="max-w-md w-full">
         <DialogHeader>
           <DialogTitle>Invite a New Member</DialogTitle>
+          <p className="text-sm text-gray-600 mt-1">
+            If the email belongs to a registered user, they will be{" "}
+            <span className="font-medium">directly added</span> to the club. If
+            not, they will receive an{" "}
+            <span className="font-medium">invitation email</span> to join.
+          </p>
+          <p className='text-sm text-gray-600 mt-1"'>
+            We suggest that user registers first on our platform before inviting to avoid invite email going to spam.
+          </p>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Alert / Warning */}
+          <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 text-sm rounded-md p-2">
+            ⚠️ Please carefully type the email address. Incorrect emails will
+            not receive the invite.
+          </div>
+
           <div>
             <Label>Email</Label>
             <Input type="email" placeholder="Email" {...register("email")} />
@@ -124,10 +133,8 @@ toast.success(`${data.email} has been added to club successfully!`);
             )}
           </div>
 
-          
-
           <Button type="submit" className="w-full">
-            Get Invite Link
+            Send Invite / Add Member
           </Button>
         </form>
       </DialogContent>
